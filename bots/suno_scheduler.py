@@ -3,10 +3,15 @@ Shadow IA - Suno Scheduler
 Vérifie les publications programmées et les envoie sur Discord / X / Telegram.
 """
 
+import sys
 import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
+
+# Ajoute le dossier racine du projet au PYTHONPATH
+ROOT_DIR = Path(__file__).parent.parent
+sys.path.insert(0, str(ROOT_DIR))
 
 # Modules de publication (stubs pour l'instant)
 from modules.discord import publish_to_discord
@@ -14,7 +19,7 @@ from modules.telegram import publish_to_telegram
 from modules.twitter import publish_to_x
 
 # Chemin de la base de données (même dossier que app.py)
-DB_PATH = Path(__file__).parent.parent / "songs.db"
+DB_PATH = ROOT_DIR / "songs.db"
 
 def get_pending_songs():
     """Récupère les chansons dont la date de publication est passée et non encore publiées."""
