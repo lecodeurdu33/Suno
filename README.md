@@ -1,45 +1,75 @@
 # 🎵 Shadow IA – Suno Scheduler
 
-Interface web moderne pour programmer et gérer les publications de tes chansons Suno.
+Interface web + scheduler automatique pour programmer et publier tes chansons Suno sur Discord, X et Telegram.
 
 ## 🚀 Installation
 
 ```bash
 git clone https://github.com/lecodeurdu33/Suno.git
 cd Suno
-pip install flask
-python app.py
+pip install -r requirements.txt
 ```
 
-Ouvre ensuite : [http://localhost:5000](http://localhost:5000)
+## ▶️ Lancement
 
-## ✨ Fonctionnalités actuelles
+**Terminal 1 – Interface web**
+```bash
+python app.py
+```
+→ http://localhost:5000
 
-- Ajout de chansons avec titre, lien Suno et date/heure de publication
-- Liste des publications programmées
-- Statut (En attente / Publié)
-- Suppression d’une publication
-- Design sombre violet futuriste (thème Shadow IA)
+**Terminal 2 – Scheduler**
+```bash
+python bots/suno_scheduler.py
+```
 
-## 📁 Structure
+## 📁 Structure du projet
 
 ```text
 Suno/
-├── app.py
+├── app.py                      # Interface Flask
+├── bots/
+│   └── suno_scheduler.py       # Scheduler automatique
+├── modules/
+│   ├── discord.py              # Publication Discord
+│   ├── telegram.py             # Publication Telegram
+│   └── twitter.py              # Publication X
+├── config/
+│   └── settings.json           # Configuration (tokens, webhooks…)
 ├── templates/
 │   └── index.html
 ├── static/
 │   └── style.css
-└── songs.db          # créé automatiquement
+├── requirements.txt
+└── songs.db                    # Créé automatiquement
 ```
 
-## 🔮 Prochaines étapes (Shadow IA)
+## ✨ Fonctionnalités actuelles
 
-- [ ] Scheduler automatique (`bots/suno_scheduler.py`)
-- [ ] Publication Discord / X / Telegram
-- [ ] Génération de posts promo avec IA
+- ✅ Ajout de chansons (titre + lien Suno + date/heure)
+- ✅ Liste des publications programmées
+- ✅ Statut (En attente / Publié)
+- ✅ Suppression
+- ✅ Scheduler qui vérifie toutes les 30 secondes
+- ✅ Modules prêts pour Discord / X / Telegram (stubs)
+- ✅ Design sombre violet futuriste
+
+## 🔧 Configuration des publications
+
+1. Ouvre `config/settings.json`
+2. Remplis tes tokens / webhooks
+3. Complète le code dans `modules/discord.py`, `modules/telegram.py` et `modules/twitter.py`
+
+## 🔮 Roadmap Shadow IA
+
+- [x] Interface web moderne
+- [x] Scheduler de base
+- [x] Modules multi-plateformes (stubs)
+- [ ] Implémentation réelle Discord / X / Telegram
+- [ ] Génération automatique de posts promo avec IA
 - [ ] Vue calendrier + drag & drop
 - [ ] Statistiques d’écoute Suno
+- [ ] Gestion multi-artistes / albums
 
 ---
-Fait avec ❤️ pour Shadow IA
+Fait avec ❤️ pour **Shadow IA**

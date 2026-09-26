@@ -1,0 +1,19 @@
+{
+  "discord": {
+    "webhook_url": ""
+  },
+  "telegram": {
+    "bot_token": "",
+    "chat_id": ""
+  },
+  "twitter": {
+    "bearer_token": "",
+    "api_key": "",
+    "api_secret": "",
+    "access_token": "",
+    "access_token_secret": ""
+  },
+  "scheduler": {
+    "interval_seconds": 30
+  }
+}
