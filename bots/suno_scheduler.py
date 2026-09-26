@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
-# Modules de publication (stubs pour l'instant)
+# Modules de publication
 from modules.discord import publish_to_discord
 from modules.telegram import publish_to_telegram
 from modules.twitter import publish_to_x
@@ -58,17 +58,31 @@ def process_song(song):
     print(f"   Lien : {url}")
 
     # --- Publication multi-plateformes ---
-    try:
-        publish_to_discord(title, url)
-        publish_to_x(title, url)
-        publish_to_telegram(title, url)
-        print("   ✅ Publié avec succès")
-    except Exception as e:
-        print(f"   ⚠️ Erreur lors de la publication : {e}")
-        return  # On ne marque pas comme publié en cas d'erreur
+    success = False
 
-    mark_as_published(song_id)
-    print(f"   📌 Marqué comme publié (id={song_id})")
+    try:
+        if publish_to_discord(title, url):
+            success = True
+    except Exception as e:
+        print(f"   [Discord] Exception : {e}")
+
+    try:
+        if publish_to_x(title, url):
+            success = True
+    except Exception as e:
+        print(f"   [X] Exception : {e}")
+
+    try:
+        if publish_to_telegram(title, url):
+            success = True
+    except Exception as e:
+        print(f"   [Telegram] Exception : {e}")
+
+    if success:
+        mark_as_published(song_id)
+        print(f"   📌 Marqué comme publié (id={song_id})")
+    else:
+        print("   ⚠️ Aucune plateforme n'a réussi → non marqué comme publié")
 
 def run_scheduler(interval_seconds: int = 30):
     """Boucle principale du scheduler."""
