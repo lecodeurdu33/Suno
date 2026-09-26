@@ -31,7 +31,7 @@ Suno/
 ├── bots/
 │   └── suno_scheduler.py       # Scheduler automatique
 ├── modules/
-│   ├── discord.py              # Publication Discord
+│   ├── discord.py              # ✅ Publication Discord (webhook)
 │   ├── telegram.py             # Publication Telegram
 │   └── twitter.py              # Publication X
 ├── config/
@@ -51,21 +51,33 @@ Suno/
 - ✅ Statut (En attente / Publié)
 - ✅ Suppression
 - ✅ Scheduler qui vérifie toutes les 30 secondes
-- ✅ Modules prêts pour Discord / X / Telegram (stubs)
+- ✅ **Discord opérationnel** (webhook + embed violet)
+- ✅ Modules X et Telegram prêts (stubs)
 - ✅ Design sombre violet futuriste
 
-## 🔧 Configuration des publications
+## 🔧 Configuration Discord
 
-1. Ouvre `config/settings.json`
-2. Remplis tes tokens / webhooks
-3. Complète le code dans `modules/discord.py`, `modules/telegram.py` et `modules/twitter.py`
+1. Sur Discord → Paramètres du serveur → Intégrations → **Webhooks** → Nouveau webhook
+2. Copie l’URL du webhook
+3. Colle-la dans `config/settings.json` :
+
+```json
+{
+  "discord": {
+    "webhook_url": "https://discord.com/api/webhooks/TON_ID/TON_TOKEN"
+  }
+}
+```
+
+4. Relance le scheduler → les prochaines publications arriveront automatiquement sur Discord avec un bel embed violet Shadow IA.
 
 ## 🔮 Roadmap Shadow IA
 
 - [x] Interface web moderne
 - [x] Scheduler de base
-- [x] Modules multi-plateformes (stubs)
-- [ ] Implémentation réelle Discord / X / Telegram
+- [x] Modules multi-plateformes
+- [x] Implémentation réelle Discord
+- [ ] Implémentation réelle X / Telegram
 - [ ] Génération automatique de posts promo avec IA
 - [ ] Vue calendrier + drag & drop
 - [ ] Statistiques d’écoute Suno
