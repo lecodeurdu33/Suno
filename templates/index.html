@@ -11,21 +11,29 @@
 <div class="container">
     <header>
         <h1>🎵 Shadow IA</h1>
-        <p class="subtitle">Suno Scheduler + Messages Discord</p>
+        <p class="subtitle">Rappels publication Suno + Messages Discord</p>
     </header>
 
-    <!-- Formulaire chanson Suno -->
+    <section class="info-box">
+        <strong>Workflow chanson Suno</strong>
+        <ol>
+            <li>Tu programmes la date/heure</li>
+            <li>À l’heure H, Shadow IA t’envoie un rappel Discord :<br>
+                <em>« C’est l’heure de publier [Titre] »</em></li>
+            <li>Tu ouvres Suno → Library → ⋮ → <strong>Publish</strong> (1 clic)</li>
+        </ol>
+    </section>
+
     <section class="form-section">
-        <h2>🎵 Programmer une chanson Suno</h2>
+        <h2>🎵 Programmer un rappel de publication</h2>
         <form action="/add" method="POST" class="add-form">
             <input type="text" name="title" placeholder="Titre de la chanson" required>
-            <input type="url" name="url" placeholder="Lien Suno (https://...)" required>
+            <input type="url" name="url" placeholder="Lien Suno (https://suno.com/song/...)" required>
             <input type="datetime-local" name="date" required>
-            <button type="submit">Programmer</button>
+            <button type="submit">Programmer le rappel</button>
         </form>
     </section>
 
-    <!-- Formulaire message Discord -->
     <section class="form-section">
         <h2>💬 Programmer un message Discord</h2>
         <form action="/add_message" method="POST" class="add-form message-form">
@@ -35,15 +43,14 @@
         </form>
     </section>
 
-    <!-- Liste chansons -->
     <section class="list-section">
-        <h2>Chansons programmées</h2>
+        <h2>Rappels de publication programmés</h2>
         {% if songs %}
         <table>
             <thead>
                 <tr>
                     <th>Titre</th>
-                    <th>Date</th>
+                    <th>Date du rappel</th>
                     <th>Statut</th>
                     <th>Action</th>
                 </tr>
@@ -59,7 +66,7 @@
                     <td>{{ song['publish_date'].replace('T', ' ') }}</td>
                     <td>
                         {% if song['published'] %}
-                            <span class="status published">✅ Publié</span>
+                            <span class="status published">🔔 Notifié</span>
                         {% else %}
                             <span class="status pending">⏳ En attente</span>
                         {% endif %}
@@ -73,11 +80,10 @@
             </tbody>
         </table>
         {% else %}
-            <p class="empty">Aucune chanson programmée.</p>
+            <p class="empty">Aucun rappel programmé.</p>
         {% endif %}
     </section>
 
-    <!-- Liste messages Discord -->
     <section class="list-section">
         <h2>Messages Discord programmés</h2>
         {% if messages %}
