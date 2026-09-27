@@ -1,6 +1,6 @@
-# 🎵 Shadow IA – Suno Scheduler
+# 🎵 Shadow IA – Suno + Discord Scheduler
 
-Interface web + scheduler automatique pour programmer et publier tes chansons Suno sur Discord, X et Telegram.
+Programme tes chansons Suno **et** des messages Discord libres.
 
 ## 🚀 Installation
 
@@ -23,42 +23,21 @@ python app.py
 python bots/suno_scheduler.py
 ```
 
-## 📁 Structure du projet
+## ✨ Fonctionnalités
 
-```text
-Suno/
-├── app.py                      # Interface Flask
-├── bots/
-│   └── suno_scheduler.py       # Scheduler automatique
-├── modules/
-│   ├── discord.py              # ✅ Publication Discord (webhook)
-│   ├── telegram.py             # Publication Telegram
-│   └── twitter.py              # Publication X
-├── config/
-│   └── settings.json           # Configuration (tokens, webhooks…)
-├── templates/
-│   └── index.html
-├── static/
-│   └── style.css
-├── requirements.txt
-└── songs.db                    # Créé automatiquement
-```
+### Chansons Suno
+- Ajoute titre + lien + date/heure
+- À l’heure prévue → annonce Discord (embed violet) + stubs X/Telegram
 
-## ✨ Fonctionnalités actuelles
-
-- ✅ Ajout de chansons (titre + lien Suno + date/heure)
-- ✅ Liste des publications programmées
-- ✅ Statut (En attente / Publié)
-- ✅ Suppression
-- ✅ Scheduler qui vérifie toutes les 30 secondes
-- ✅ **Discord opérationnel** (webhook + embed violet)
-- ✅ Modules X et Telegram prêts (stubs)
-- ✅ Design sombre violet futuriste
+### Messages Discord
+- Écris un message libre (markdown supporté)
+- Programme la date/heure d’envoi
+- Le scheduler l’envoie automatiquement via webhook
 
 ## 🔧 Configuration Discord
 
-1. Sur Discord → Paramètres du serveur → Intégrations → **Webhooks** → Nouveau webhook
-2. Copie l’URL du webhook
+1. Discord → Paramètres serveur → Intégrations → Webhooks → Nouveau webhook
+2. Copie l’URL
 3. Colle-la dans `config/settings.json` :
 
 ```json
@@ -69,19 +48,20 @@ Suno/
 }
 ```
 
-4. Relance le scheduler → les prochaines publications arriveront automatiquement sur Discord avec un bel embed violet Shadow IA.
+## 📁 Structure
 
-## 🔮 Roadmap Shadow IA
-
-- [x] Interface web moderne
-- [x] Scheduler de base
-- [x] Modules multi-plateformes
-- [x] Implémentation réelle Discord
-- [ ] Implémentation réelle X / Telegram
-- [ ] Génération automatique de posts promo avec IA
-- [ ] Vue calendrier + drag & drop
-- [ ] Statistiques d’écoute Suno
-- [ ] Gestion multi-artistes / albums
+```text
+Suno/
+├── app.py
+├── bots/suno_scheduler.py
+├── modules/
+│   ├── discord.py          ← chansons + messages libres
+│   ├── telegram.py
+│   └── twitter.py
+├── config/settings.json
+├── templates/index.html
+└── static/style.css
+```
 
 ---
 Fait avec ❤️ pour **Shadow IA**

@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect
 import sqlite3
-from datetime import datetime
 
 app = Flask(__name__)
 
@@ -9,8 +8,7 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
-@app.route("/")
-def index():
+def init_db():
     conn = get_db()
     cur = conn.cursor()
 
@@ -24,11 +22,32 @@ def index():
         )
     """)
 
-    cur.execute("SELECT * FROM songs ORDER BY publish_date ASC")
-    songs = cur.fetchall()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS discord_messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            content TEXT NOT NULL,
+            publish_date TEXT NOT NULL,
+            published INTEGER DEFAULT 0
+        )
+    """)
+
+    conn.commit()
     conn.close()
 
-    return render_template("index.html", songs=songs)
+@app.route("/")
+def index():
+    init_db()
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM songs ORDER BY publish_date ASC")
+    songs = cur.fetchall()
+
+    cur.execute("SELECT * FROM discord_messages ORDER BY publish_date ASC")
+    messages = cur.fetchall()
+
+    conn.close()
+    return render_template("index.html", songs=songs, messages=messages)
 
 @app.route("/add", methods=["POST"])
 def add():
@@ -47,7 +66,24 @@ def add():
     )
     conn.commit()
     conn.close()
+    return redirect("/")
 
+@app.route("/add_message", methods=["POST"])
+def add_message():
+    content = request.form.get("content", "").strip()
+    date = request.form.get("date", "").strip()
+
+    if not content or not date:
+        return redirect("/")
+
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO discord_messages (content, publish_date) VALUES (?, ?)",
+        (content, date)
+    )
+    conn.commit()
+    conn.close()
     return redirect("/")
 
 @app.route("/delete/<int:song_id>")
@@ -59,5 +95,15 @@ def delete(song_id):
     conn.close()
     return redirect("/")
 
+@app.route("/delete_message/<int:msg_id>")
+def delete_message(msg_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM discord_messages WHERE id = ?", (msg_id,))
+    conn.commit()
+    conn.close()
+    return redirect("/")
+
 if __name__ == "__main__":
+    init_db()
     app.run(debug=True, port=5000)

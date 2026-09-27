@@ -12,7 +12,6 @@ SETTINGS_PATH = ROOT_DIR / "config" / "settings.json"
 
 
 def load_settings() -> dict:
-    """Charge la configuration depuis settings.json."""
     try:
         with open(SETTINGS_PATH, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -21,45 +20,62 @@ def load_settings() -> dict:
         return {}
 
 
-def publish_to_discord(title: str, url: str) -> bool:
-    """
-    Publie une chanson sur Discord via webhook.
-    Retourne True si succès, False sinon.
-    """
+def _get_webhook() -> str:
     settings = load_settings()
-    webhook_url = settings.get("discord", {}).get("webhook_url", "").strip()
+    return settings.get("discord", {}).get("webhook_url", "").strip()
 
+
+def publish_to_discord(title: str, url: str) -> bool:
+    """Publie une chanson Suno (embed stylé)."""
+    webhook_url = _get_webhook()
     if not webhook_url:
-        print("   [Discord] ⚠️  Webhook non configuré dans config/settings.json")
+        print("   [Discord] ⚠️  Webhook non configuré")
         return False
 
-    # Message avec embed stylé Shadow IA
     payload = {
         "username": "Shadow IA",
         "avatar_url": "https://cdn-icons-png.flaticon.com/512/2995/2995101.png",
-        "embeds": [
-            {
-                "title": f"🎵 {title}",
-                "description": f"Nouvelle sortie Suno !\n\n[Écouter sur Suno]({url})",
-                "url": url,
-                "color": 0x7C3AED,  # Violet Shadow IA
-                "footer": {
-                    "text": "Shadow IA • Publication automatique"
-                }
-            }
-        ]
+        "embeds": [{
+            "title": f"🎵 {title}",
+            "description": f"Nouvelle sortie Suno !\n\n[Écouter sur Suno]({url})",
+            "url": url,
+            "color": 0x7C3AED,
+            "footer": {"text": "Shadow IA • Publication automatique"}
+        }]
     }
 
     try:
         response = requests.post(webhook_url, json=payload, timeout=10)
-
         if response.status_code in (200, 204):
-            print(f"   [Discord] ✅ Publié : {title}")
+            print(f"   [Discord] ✅ Chanson : {title}")
             return True
-        else:
-            print(f"   [Discord] ❌ Erreur {response.status_code} : {response.text}")
-            return False
-
+        print(f"   [Discord] ❌ Erreur {response.status_code}")
+        return False
     except requests.exceptions.RequestException as e:
-        print(f"   [Discord] ❌ Erreur réseau : {e}")
+        print(f"   [Discord] ❌ Réseau : {e}")
+        return False
+
+
+def send_discord_message(content: str) -> bool:
+    """Envoie un message texte libre (ou avec markdown) sur Discord."""
+    webhook_url = _get_webhook()
+    if not webhook_url:
+        print("   [Discord] ⚠️  Webhook non configuré")
+        return False
+
+    payload = {
+        "username": "Shadow IA",
+        "avatar_url": "https://cdn-icons-png.flaticon.com/512/2995/2995101.png",
+        "content": content
+    }
+
+    try:
+        response = requests.post(webhook_url, json=payload, timeout=10)
+        if response.status_code in (200, 204):
+            print(f"   [Discord] ✅ Message envoyé")
+            return True
+        print(f"   [Discord] ❌ Erreur {response.status_code} : {response.text[:100]}")
+        return False
+    except requests.exceptions.RequestException as e:
+        print(f"   [Discord] ❌ Réseau : {e}")
         return False

@@ -1,6 +1,7 @@
 """
-Shadow IA - Suno Scheduler
-Vérifie les publications programmées et les envoie sur Discord / X / Telegram.
+Shadow IA - Scheduler
+- Publie les chansons Suno programmées
+- Envoie les messages Discord programmés
 """
 
 import sys
@@ -9,55 +10,63 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-# Ajoute le dossier racine du projet au PYTHONPATH
 ROOT_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
-# Modules de publication
-from modules.discord import publish_to_discord
+from modules.discord import publish_to_discord, send_discord_message
 from modules.telegram import publish_to_telegram
 from modules.twitter import publish_to_x
 
-# Chemin de la base de données (même dossier que app.py)
 DB_PATH = ROOT_DIR / "songs.db"
 
 def get_pending_songs():
-    """Récupère les chansons dont la date de publication est passée et non encore publiées."""
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-
     now = datetime.now().strftime("%Y-%m-%dT%H:%M")
-
     cur.execute("""
         SELECT * FROM songs
-        WHERE published = 0
-          AND publish_date <= ?
+        WHERE published = 0 AND publish_date <= ?
         ORDER BY publish_date ASC
     """, (now,))
-
-    songs = cur.fetchall()
+    rows = cur.fetchall()
     conn.close()
-    return songs
+    return rows
 
-def mark_as_published(song_id: int):
-    """Marque une chanson comme publiée."""
+def get_pending_messages():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    now = datetime.now().strftime("%Y-%m-%dT%H:%M")
+    cur.execute("""
+        SELECT * FROM discord_messages
+        WHERE published = 0 AND publish_date <= ?
+        ORDER BY publish_date ASC
+    """, (now,))
+    rows = cur.fetchall()
+    conn.close()
+    return rows
+
+def mark_song_published(song_id: int):
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     cur.execute("UPDATE songs SET published = 1 WHERE id = ?", (song_id,))
     conn.commit()
     conn.close()
 
+def mark_message_published(msg_id: int):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("UPDATE discord_messages SET published = 1 WHERE id = ?", (msg_id,))
+    conn.commit()
+    conn.close()
+
 def process_song(song):
-    """Traite une chanson : publication + marquage."""
     title = song["title"]
     url = song["url"]
     song_id = song["id"]
 
-    print(f"\n🎵 Publication : {title}")
-    print(f"   Lien : {url}")
-
-    # --- Publication multi-plateformes ---
+    print(f"\n🎵 Chanson : {title}")
     success = False
 
     try:
@@ -79,28 +88,50 @@ def process_song(song):
         print(f"   [Telegram] Exception : {e}")
 
     if success:
-        mark_as_published(song_id)
-        print(f"   📌 Marqué comme publié (id={song_id})")
+        mark_song_published(song_id)
+        print(f"   📌 Chanson marquée publiée (id={song_id})")
     else:
-        print("   ⚠️ Aucune plateforme n'a réussi → non marqué comme publié")
+        print("   ⚠️ Échec → non marquée")
+
+def process_message(msg):
+    content = msg["content"]
+    msg_id = msg["id"]
+
+    print(f"\n💬 Message Discord : {content[:60]}{'...' if len(content) > 60 else ''}")
+
+    try:
+        if send_discord_message(content):
+            mark_message_published(msg_id)
+            print(f"   📌 Message marqué publié (id={msg_id})")
+        else:
+            print("   ⚠️ Échec envoi → non marqué")
+    except Exception as e:
+        print(f"   ❌ Exception : {e}")
 
 def run_scheduler(interval_seconds: int = 30):
-    """Boucle principale du scheduler."""
     print("=" * 50)
-    print("🚀 Shadow IA – Suno Scheduler démarré")
-    print(f"   Vérification toutes les {interval_seconds} secondes")
+    print("🚀 Shadow IA – Scheduler démarré")
+    print(f"   Vérification toutes les {interval_seconds}s")
+    print("   • Chansons Suno → Discord / X / Telegram")
+    print("   • Messages Discord programmés")
     print("=" * 50)
 
     while True:
         try:
-            pending = get_pending_songs()
+            songs = get_pending_songs()
+            messages = get_pending_messages()
 
-            if pending:
-                print(f"\n[{datetime.now().strftime('%H:%M:%S')}] {len(pending)} publication(s) à traiter")
-                for song in pending:
+            if songs or messages:
+                print(f"\n[{datetime.now().strftime('%H:%M:%S')}] "
+                      f"{len(songs)} chanson(s) + {len(messages)} message(s)")
+
+                for song in songs:
                     process_song(song)
+
+                for msg in messages:
+                    process_message(msg)
             else:
-                print(f"[{datetime.now().strftime('%H:%M:%S')}] Aucune publication en attente", end="\r")
+                print(f"[{datetime.now().strftime('%H:%M:%S')}] En attente...", end="\r")
 
         except Exception as e:
             print(f"\n❌ Erreur scheduler : {e}")

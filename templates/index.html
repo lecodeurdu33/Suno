@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shadow IA – Suno Scheduler</title>
+    <title>Shadow IA – Suno + Discord</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -11,11 +11,12 @@
 <div class="container">
     <header>
         <h1>🎵 Shadow IA</h1>
-        <p class="subtitle">Suno Publication Scheduler</p>
+        <p class="subtitle">Suno Scheduler + Messages Discord</p>
     </header>
 
+    <!-- Formulaire chanson Suno -->
     <section class="form-section">
-        <h2>Programmer une publication</h2>
+        <h2>🎵 Programmer une chanson Suno</h2>
         <form action="/add" method="POST" class="add-form">
             <input type="text" name="title" placeholder="Titre de la chanson" required>
             <input type="url" name="url" placeholder="Lien Suno (https://...)" required>
@@ -24,15 +25,25 @@
         </form>
     </section>
 
-    <section class="list-section">
-        <h2>Publications programmées</h2>
+    <!-- Formulaire message Discord -->
+    <section class="form-section">
+        <h2>💬 Programmer un message Discord</h2>
+        <form action="/add_message" method="POST" class="add-form message-form">
+            <textarea name="content" placeholder="Ton message Discord (markdown supporté)..." rows="3" required></textarea>
+            <input type="datetime-local" name="date" required>
+            <button type="submit" class="btn-discord">Programmer le message</button>
+        </form>
+    </section>
 
+    <!-- Liste chansons -->
+    <section class="list-section">
+        <h2>Chansons programmées</h2>
         {% if songs %}
         <table>
             <thead>
                 <tr>
                     <th>Titre</th>
-                    <th>Date de publication</th>
+                    <th>Date</th>
                     <th>Statut</th>
                     <th>Action</th>
                 </tr>
@@ -54,17 +65,53 @@
                         {% endif %}
                     </td>
                     <td>
-                        <a href="/delete/{{ song['id'] }}" class="delete-btn" 
-                           onclick="return confirm('Supprimer cette publication ?')">
-                            Supprimer
-                        </a>
+                        <a href="/delete/{{ song['id'] }}" class="delete-btn"
+                           onclick="return confirm('Supprimer ?')">Supprimer</a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
         {% else %}
-            <p class="empty">Aucune publication programmée pour le moment.</p>
+            <p class="empty">Aucune chanson programmée.</p>
+        {% endif %}
+    </section>
+
+    <!-- Liste messages Discord -->
+    <section class="list-section">
+        <h2>Messages Discord programmés</h2>
+        {% if messages %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Message</th>
+                    <th>Date</th>
+                    <th>Statut</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for msg in messages %}
+                <tr>
+                    <td class="msg-content">{{ msg['content'][:80] }}{% if msg['content']|length > 80 %}...{% endif %}</td>
+                    <td>{{ msg['publish_date'].replace('T', ' ') }}</td>
+                    <td>
+                        {% if msg['published'] %}
+                            <span class="status published">✅ Envoyé</span>
+                        {% else %}
+                            <span class="status pending">⏳ En attente</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/delete_message/{{ msg['id'] }}" class="delete-btn"
+                           onclick="return confirm('Supprimer ?')">Supprimer</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p class="empty">Aucun message Discord programmé.</p>
         {% endif %}
     </section>
 </div>

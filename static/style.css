@@ -55,7 +55,8 @@ h2 {
     gap: 12px;
 }
 
-.add-form input {
+.add-form input,
+.add-form textarea {
     flex: 1;
     min-width: 180px;
     padding: 12px 16px;
@@ -64,9 +65,21 @@ h2 {
     background: #0f172a;
     color: white;
     font-size: 0.95rem;
+    font-family: inherit;
 }
 
-.add-form input:focus {
+.add-form textarea {
+    width: 100%;
+    min-height: 80px;
+    resize: vertical;
+}
+
+.message-form {
+    flex-direction: column;
+}
+
+.add-form input:focus,
+.add-form textarea:focus {
     outline: none;
     border-color: #7c3aed;
     box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
@@ -86,6 +99,14 @@ h2 {
 .add-form button:hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+}
+
+.btn-discord {
+    background: linear-gradient(135deg, #5865F2, #4752C4) !important;
+}
+
+.btn-discord:hover {
+    box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4) !important;
 }
 
 table {
@@ -112,6 +133,12 @@ th {
 
 .song-link:hover {
     text-decoration: underline;
+}
+
+.msg-content {
+    max-width: 320px;
+    word-break: break-word;
+    color: #e2e8f0;
 }
 
 .status {
@@ -150,7 +177,6 @@ th {
     .add-form {
         flex-direction: column;
     }
-    
     .add-form input,
     .add-form button {
         width: 100%;
